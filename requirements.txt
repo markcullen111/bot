@@ -1,0 +1,57 @@
+# Core Libraries
+numpy
+pandas
+scipy
+json5
+argparse
+logging
+
+# GUI
+PyQt5
+
+# Machine Learning & AI
+torch
+torchvision
+torchaudio
+scikit-learn
+tensorflow
+xgboost
+lightgbm
+catboost
+
+# Trading & Market Data
+ccxt
+ta  # Technical Analysis library
+yfinance
+alpha_vantage
+requests
+
+# Database
+psycopg2-binary  # PostgreSQL database
+sqlalchemy
+
+# Execution & Parallel Processing
+concurrent-log-handler
+joblib
+threadpoolctl
+
+# Risk Management & Financial Analysis
+quantlib
+statsmodels
+
+# Visualization
+matplotlib
+seaborn
+plotly
+
+# Web Scraping (for sentiment analysis/news scraping)
+beautifulsoup4
+lxml
+
+# API Access (for news scraping, external data)
+requests
+tweepy  # Twitter API for sentiment analysis
+
+# Others
+tqdm
+

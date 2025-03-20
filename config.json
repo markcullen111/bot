@@ -1,0 +1,13 @@
+{
+    "risk_limits": {
+        "max_drawdown_limit": 10,
+        "position_limit": 1000,
+        "stop_loss": 5
+    },
+    "strategies": {
+        "active_strategies": [
+            "mean_reversion",
+            "trend_following"
+        ]
+    }
+}
