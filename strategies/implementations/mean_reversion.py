@@ -6,6 +6,19 @@ import logging
 import time
 from typing import Dict, List, Tuple, Optional, Any, Union
 from scipy import stats
+from dataclasses import dataclass
+from datetime import datetime
+
+from core.brokers.base_broker import OrderType, OrderSide
+
+@dataclass
+class MeanReversionParams:
+    lookback_period: int = 20
+    entry_std_dev: float = 2.0
+    exit_std_dev: float = 0.5
+    stop_loss_std_dev: float = 3.0
+    position_size: float = 1.0
+    max_positions: int = 5
 
 class MeanReversionStrategy:
     """
@@ -21,7 +34,7 @@ class MeanReversionStrategy:
     - Volume-based signal enhancement
     """
     
-    def __init__(self) -> None:
+    def __init__(self, params: Optional[MeanReversionParams] = None):
         """Initialize the strategy with default parameters."""
         # Default strategy parameters - will be overridden by optimization
         self.default_params = {
@@ -66,7 +79,7 @@ class MeanReversionStrategy:
         }
         
         # Strategy state variables
-        self.params = self.default_params.copy()
+        self.params = params or MeanReversionParams(**self.default_params)
         self.is_initialized = False
         self.current_position = 0
         self.entry_price = None
@@ -109,7 +122,7 @@ class MeanReversionStrategy:
         # Update only provided parameters
         for key, value in params.items():
             if key in self.default_params:
-                self.params[key] = value
+                self.params = self.params._replace(**{key: value})
             else:
                 self.logger.warning(f"Unknown parameter: {key}")
                 
@@ -133,8 +146,8 @@ class MeanReversionStrategy:
         try:
             # Ensure we have enough data for statistical tests
             required_length = max(
-                self.params['stat_window'],
-                self.params['window'] + 50
+                self.params.stat_window,
+                self.params.window + 50
             )
             
             if len(historical_data) < required_length:
@@ -165,7 +178,7 @@ class MeanReversionStrategy:
             data: DataFrame with market data (OHLCV)
         """
         # Use the most recent data for the test
-        test_window = min(self.params['stat_window'], len(data))
+        test_window = min(self.params.stat_window, len(data))
         price_series = data['close'].iloc[-test_window:].values
         
         try:
@@ -283,10 +296,10 @@ class MeanReversionStrategy:
         indicators = {}
         
         # Get parameters
-        window = self.params['window']
-        std_dev = self.params['std_dev']
-        rsi_period = self.params['rsi_period']
-        atr_period = self.params['atr_period']
+        window = self.params.window
+        std_dev = self.params.std_dev
+        rsi_period = self.params.rsi_period
+        atr_period = self.params.atr_period
         
         # Create cache key
         cache_key = f"{window}_{std_dev}_{rsi_period}_{atr_period}_{len(data)}"
@@ -307,15 +320,15 @@ class MeanReversionStrategy:
             indicators['std'] = data['close'].rolling(window=window).std()
             
             # Calculate Bollinger Bands with adaptive or fixed std dev
-            if self.params['adaptive_bands']:
+            if self.params.adaptive_bands:
                 # Use linear regression of volatility to predict optimal std dev multiplier
                 volatility_ratio = indicators['std'] / indicators['std'].rolling(window=100).mean()
                 
                 # Scale std_dev between min and max based on recent volatility
                 adaptive_multiplier = np.clip(
                     std_dev * volatility_ratio.fillna(1.0),
-                    self.params['min_std_dev'],
-                    self.params['max_std_dev']
+                    self.params.min_std_dev,
+                    self.params.max_std_dev
                 )
                 
                 # Calculate adaptive bands
