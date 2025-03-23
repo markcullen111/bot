@@ -3,8 +3,8 @@
         "name": "interactive_brokers",
         "paper_trading": true,
         "api_config": {
-            "api_key": "YOUR_API_KEY",
-            "api_secret": "YOUR_API_SECRET",
+            "api_key": "YOUR_API_KEY_HERE",
+            "api_secret": "YOUR_API_SECRET_HERE",
             "endpoint": "https://api.broker.com"
         }
     },
@@ -54,4 +54,4 @@
         "log_positions": true,
         "log_file": "trading_system.log"
     }
-}
+} 
